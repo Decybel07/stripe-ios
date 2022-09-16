@@ -39,6 +39,13 @@ struct FormSpec: Decodable {
         case sepa_mandate
         case unknown(String)
 
+        var isName: Bool {
+            switch self {
+            case .name: return true
+            default: return false
+            }
+        }
+        
         var isEmail: Bool {
             switch self {
             case .email: return true

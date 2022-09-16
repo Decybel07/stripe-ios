@@ -26,14 +26,15 @@ extension PaymentSheetFormFactory {
     private func makeFormElements(from spec: FormSpec) -> [Element] {
         var elements: [Element] = []
         
-        if configuration.forceRequireEmail, !spec.fields.contains(where: \.isEmail) {
-            elements.append(makeEmail())
-        }
-        
         for fieldSpec in spec.fields {
             if let element = fieldSpecToElement(fieldSpec: fieldSpec) {
                 elements.append(element)
             }
+        }
+        
+        if configuration.forceRequireEmail, !spec.fields.contains(where: \.isEmail) {
+            let position = spec.fields.firstIndex(where: \.isName).map { $0 + 1 } ?? 0
+            elements.insert(makeEmail(), at: position)
         }
         return elements
     }
