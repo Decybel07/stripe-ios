@@ -14,28 +14,36 @@ import UIKit
 extension PaymentSheetFormFactory {
     func makeCard(theme: ElementsUITheme = .default) -> PaymentMethodElement {
         let isLinkEnabled = offerSaveToLinkWhenSupported && canSaveToLink
-        let saveCheckbox = makeSaveCheckbox(
-            label: String.Localized.save_this_card_for_future_$merchant_payments(
-                merchantDisplayName: configuration.merchantDisplayName
-            )
-        )
-        let shouldDisplaySaveCheckbox: Bool = saveMode == .userSelectable && !canSaveToLink
-        let cardFormElement = FormElement(elements: [
+        
+        var cardElement: [Element?] = [
             CardSection(theme: theme),
-            makeBillingAddressSection(collectionMode: .countryAndPostal(countriesRequiringPostalCollection: ["US", "GB", "CA"]),
-                                      countries: nil),
-            shouldDisplaySaveCheckbox ? saveCheckbox : nil
-        ], theme: theme)
+            makeBillingAddressSection(
+                collectionMode: .countryAndPostal(countriesRequiringPostalCollection: ["US", "GB", "CA"]),
+                countries: nil
+            )
+        ]
+        
+        if saveMode == .userSelectable && !canSaveToLink {
+            cardElement.append(makeSaveCheckbox(
+                label: String.Localized.save_this_card_for_future_$merchant_payments(
+                    merchantDisplayName: configuration.merchantDisplayName
+                )
+            ))
+        }
+        
         if isLinkEnabled {
             return LinkEnabledPaymentMethodElement(
                 type: .card,
-                paymentMethodElement: cardFormElement,
+                paymentMethodElement: FormElement(elements: cardElement, theme: theme),
                 configuration: configuration,
                 linkAccount: linkAccount,
                 country: intent.countryCode
             )
         } else {
-            return cardFormElement
+            if configuration.forceRequireEmail {
+                cardElement.insert(SectionElement(makeEmail(), theme: theme), at: 0)
+            }
+            return FormElement(elements: cardElement, theme: theme)
         }
     }
 }

@@ -145,6 +145,9 @@ extension PaymentSheet {
         /// @see SavePaymentMethodOptInBehavior
         public var savePaymentMethodOptInBehavior: SavePaymentMethodOptInBehavior = .automatic
         
+        /// PaymentSheet always requires an email address
+        public var forceRequireEmail: Bool = false
+        
         internal var linkPaymentMethodsOnly: Bool = false
         
         /// Describes the appearance of PaymentSheet
